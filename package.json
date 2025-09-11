@@ -1,0 +1,25 @@
+{
+  "name": "videochat-pro",
+  "version": "1.0.0",
+  "description": "Modern WebRTC video calling app with chat functionality",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "eslint": "^8.0.0"
+  },
+  "keywords": ["webrtc", "video-call", "chat", "real-time"],
+  "author": "VideoChat Pro Team",
+  "license": "MIT"
+}
