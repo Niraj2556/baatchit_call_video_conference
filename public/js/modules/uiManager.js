@@ -1,10 +1,12 @@
 import { EventEmitter } from '../utils/eventEmitter.js';
 import { DOMUtils } from '../utils/domUtils.js';
+import PopupManager from '../utils/popupManager.js';
 
 class UIManager extends EventEmitter {
     constructor() {
         super();
         this.elements = {};
+        this.popup = new PopupManager();
         this.initializeElements();
         this.setupEventListeners();
     }
@@ -37,8 +39,14 @@ class UIManager extends EventEmitter {
     }
 
     setupEventListeners() {
-        this.elements.createBtn.addEventListener('click', () => this.handleCreateRoom());
-        this.elements.joinBtn.addEventListener('click', () => this.handleJoinRoom());
+        this.elements.createBtn.addEventListener('click', (e) => {
+            this.addClickEffect(e.target);
+            this.handleCreateRoom();
+        });
+        this.elements.joinBtn.addEventListener('click', (e) => {
+            this.addClickEffect(e.target);
+            this.handleJoinRoom();
+        });
         this.elements.leaveRoomBtn.addEventListener('click', () => this.emit('leaveRoom'));
         this.elements.toggleChatBtn.addEventListener('click', () => this.toggleChat());
         this.elements.toggleMicBtn.addEventListener('click', () => this.emit('toggleMic'));
@@ -225,12 +233,31 @@ class UIManager extends EventEmitter {
     }
 
     showAlert(message) {
-        alert(message);
+        this.popup.showError(message);
+    }
+
+    showSuccess(message) {
+        this.popup.showSuccess(message);
+    }
+
+    showInfo(message) {
+        this.popup.showInfo(message);
+    }
+
+    showLoading(message) {
+        return this.popup.showLoading(message);
     }
 
     getInitialRoomFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('room');
+    }
+
+    addClickEffect(button) {
+        button.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            button.style.transform = '';
+        }, 150);
     }
 }
 

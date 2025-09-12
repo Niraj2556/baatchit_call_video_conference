@@ -12,6 +12,7 @@ class SocketHandler {
         this.io.on('connection', (socket) => {
             console.log('User connected:', socket.id);
 
+            socket.on('create-room', (data) => this.handleCreateRoom(socket, data));
             socket.on('join-room', (data) => this.handleJoinRoom(socket, data));
             socket.on('offer', (data) => this.handleOffer(socket, data));
             socket.on('answer', (data) => this.handleAnswer(socket, data));
@@ -22,17 +23,48 @@ class SocketHandler {
         });
     }
 
+    handleCreateRoom(socket, { username, customRoomId }) {
+        const roomId = customRoomId || this.roomManager.generateRoomId();
+        const user = { id: socket.id, username };
+        
+        const result = this.roomManager.createRoom(roomId, user);
+        
+        if (!result.success) {
+            socket.emit('room-error', { error: result.error });
+            return;
+        }
+        
+        socket.join(roomId);
+        this.userManager.addUser(socket.id, { username, roomId });
+        
+        socket.emit('room-created', { roomId, isCreator: true });
+        this.io.to(roomId).emit('room-users', this.roomManager.getRoomUsers(roomId));
+        
+        console.log(`User ${username} (${socket.id}) created room ${roomId}`);
+    }
+
     handleJoinRoom(socket, { roomId, username }) {
+        if (!this.roomManager.roomExists(roomId)) {
+            socket.emit('room-error', { error: 'Room does not exist' });
+            return;
+        }
+        
         socket.join(roomId);
         
         this.userManager.addUser(socket.id, { username, roomId });
-        this.roomManager.addUserToRoom(roomId, { id: socket.id, username });
+        const result = this.roomManager.addUserToRoom(roomId, { id: socket.id, username });
+        
+        if (!result.success) {
+            socket.emit('room-error', { error: result.error });
+            return;
+        }
         
         socket.to(roomId).emit('user-joined', { id: socket.id, username });
         
         const existingUsers = this.roomManager.getRoomUsers(roomId)
             .filter(user => user.id !== socket.id);
         socket.emit('existing-users', existingUsers);
+        socket.emit('room-joined', { roomId, isCreator: false });
         
         this.io.to(roomId).emit('room-users', this.roomManager.getRoomUsers(roomId));
         
