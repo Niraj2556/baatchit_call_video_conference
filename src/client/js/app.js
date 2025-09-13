@@ -24,7 +24,8 @@ class VideoCallApp {
 
     setupEventListeners() {
         // UI Events
-        this.ui.on(EVENTS.JOIN_ROOM_UI, (data) => this.joinRoom(data));
+        this.ui.on('createRoom', (data) => this.createRoom(data));
+        this.ui.on('joinRoom', (data) => this.joinRoom(data));
         this.ui.on(EVENTS.LEAVE_ROOM, () => this.leaveRoom());
         this.ui.on(EVENTS.TOGGLE_MIC, () => this.toggleMicrophone());
         this.ui.on(EVENTS.TOGGLE_CAMERA, () => this.toggleCamera());
@@ -53,6 +54,9 @@ class VideoCallApp {
     }
 
     setupSocketListeners() {
+        this.socket.on('room-created', (data) => this.handleRoomCreated(data));
+        this.socket.on('room-joined', (data) => this.handleRoomJoined(data));
+        this.socket.on('room-error', (data) => this.handleRoomError(data));
         this.socket.on(EVENTS.USER_JOINED, (data) => this.handleUserJoined(data));
         this.socket.on(EVENTS.EXISTING_USERS, (users) => this.handleExistingUsers(users));
         this.socket.on(EVENTS.USER_LEFT, (userId) => this.handleUserLeft(userId));
@@ -71,21 +75,46 @@ class VideoCallApp {
         }
     }
 
+    async createRoom({ username, customRoomId }) {
+        try {
+            await this.webrtc.initializeLocalStream();
+            
+            this.currentUsername = username;
+            this.socket.emit('create-room', { username, customRoomId });
+            
+        } catch (error) {
+            console.error('Error creating room:', error);
+            this.ui.showAlert('Could not access camera/microphone');
+        }
+    }
+
     async joinRoom({ username, roomId }) {
         try {
             await this.webrtc.initializeLocalStream();
             
             this.currentUsername = username;
-            this.currentRoom = roomId;
-            
-            this.socket.emit(EVENTS.JOIN_ROOM, { roomId, username });
-            this.ui.showMainApp(roomId);
-            this.chat.addMessage('System', 'You joined the room', MESSAGE_TYPES.SYSTEM);
+            this.socket.emit('join-room', { roomId, username });
             
         } catch (error) {
             console.error('Error joining room:', error);
             this.ui.showAlert('Could not access camera/microphone');
         }
+    }
+
+    handleRoomCreated({ roomId, isCreator }) {
+        this.currentRoom = roomId;
+        this.ui.showMainApp(roomId);
+        this.chat.addMessage('System', `Room created successfully! Share this ID: ${roomId}`, MESSAGE_TYPES.SYSTEM);
+    }
+
+    handleRoomJoined({ roomId, isCreator }) {
+        this.currentRoom = roomId;
+        this.ui.showMainApp(roomId);
+        this.chat.addMessage('System', 'You joined the room', MESSAGE_TYPES.SYSTEM);
+    }
+
+    handleRoomError({ error }) {
+        this.ui.showAlert(error);
     }
 
     leaveRoom() {
