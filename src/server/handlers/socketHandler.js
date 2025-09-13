@@ -1,5 +1,7 @@
 import RoomManager from '../services/roomManager.js';
 import UserManager from '../services/userManager.js';
+import CallHistory from '../models/CallHistory.js';
+import User from '../models/User.js';
 
 class SocketHandler {
     constructor(io) {
@@ -23,7 +25,7 @@ class SocketHandler {
         });
     }
 
-    handleCreateRoom(socket, { username, customRoomId }) {
+    async handleCreateRoom(socket, { username, customRoomId }) {
         const roomId = customRoomId || this.roomManager.generateRoomId();
         const user = { id: socket.id, username };
         
@@ -37,13 +39,27 @@ class SocketHandler {
         socket.join(roomId);
         this.userManager.addUser(socket.id, { username, roomId });
         
+        // Create call history record
+        try {
+            const callHistory = new CallHistory({
+                roomId,
+                participants: [{
+                    username,
+                    joinTime: new Date()
+                }]
+            });
+            await callHistory.save();
+        } catch (error) {
+            console.error('Error creating call history:', error);
+        }
+        
         socket.emit('room-created', { roomId, isCreator: true });
         this.io.to(roomId).emit('room-users', this.roomManager.getRoomUsers(roomId));
         
         console.log(`User ${username} (${socket.id}) created room ${roomId}`);
     }
 
-    handleJoinRoom(socket, { roomId, username }) {
+    async handleJoinRoom(socket, { roomId, username }) {
         if (!this.roomManager.roomExists(roomId)) {
             socket.emit('room-error', { error: 'Room does not exist' });
             return;
@@ -57,6 +73,23 @@ class SocketHandler {
         if (!result.success) {
             socket.emit('room-error', { error: result.error });
             return;
+        }
+        
+        // Update call history
+        try {
+            await CallHistory.findOneAndUpdate(
+                { roomId, status: 'active' },
+                { 
+                    $push: { 
+                        participants: {
+                            username,
+                            joinTime: new Date()
+                        }
+                    }
+                }
+            );
+        } catch (error) {
+            console.error('Error updating call history:', error);
         }
         
         socket.to(roomId).emit('user-joined', { id: socket.id, username });
@@ -114,18 +147,57 @@ class SocketHandler {
         }
     }
 
-    handleDisconnect(socket) {
+    async handleDisconnect(socket) {
         const user = this.userManager.getUser(socket.id);
         console.log('User disconnected:', socket.id);
         
         if (user) {
             const roomId = user.roomId;
+            
+            // Update call history with leave time
+            try {
+                await CallHistory.findOneAndUpdate(
+                    { 
+                        roomId, 
+                        status: 'active',
+                        'participants.username': user.username,
+                        'participants.leaveTime': { $exists: false }
+                    },
+                    { 
+                        $set: { 
+                            'participants.$.leaveTime': new Date()
+                        }
+                    }
+                );
+            } catch (error) {
+                console.error('Error updating call history on disconnect:', error);
+            }
+            
             this.roomManager.removeUserFromRoom(roomId, socket.id);
             
             if (this.roomManager.isRoomEmpty(roomId)) {
+                // End call history when room is empty
+                try {
+                    const callHistory = await CallHistory.findOneAndUpdate(
+                        { roomId, status: 'active' },
+                        { 
+                            status: 'ended',
+                            endTime: new Date()
+                        }
+                    );
+                    
+                    if (callHistory) {
+                        const duration = Math.floor((new Date() - callHistory.startTime) / 1000);
+                        callHistory.duration = duration;
+                        await callHistory.save();
+                    }
+                } catch (error) {
+                    console.error('Error ending call history:', error);
+                }
+                
                 this.roomManager.deleteRoom(roomId);
             } else {
-                socket.to(roomId).emit('user-left', socket.id);
+                socket.to(roomId).emit('user-left', { userId: socket.id, username: user.username });
                 this.io.to(roomId).emit('room-users', this.roomManager.getRoomUsers(roomId));
             }
             

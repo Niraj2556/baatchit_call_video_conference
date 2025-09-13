@@ -5,6 +5,7 @@ import { EVENTS, MESSAGE_TYPES } from './utils/constants.js';
 
 class VideoCallApp {
     constructor() {
+        this.checkAuth();
         this.socket = io();
         this.webrtc = new WebRTCManager();
         this.chat = new ChatManager();
@@ -15,6 +16,15 @@ class VideoCallApp {
         this.participants = [];
         
         this.initialize();
+    }
+
+    checkAuth() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/auth.html';
+            return false;
+        }
+        return true;
     }
 
     initialize() {
@@ -70,6 +80,14 @@ class VideoCallApp {
     }
 
     initializeFromURL() {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (user.username) {
+            this.ui.elements.usernameInput.value = user.username;
+        }
+        
+        // Initialize profile info on join screen
+        this.ui.updateProfileInfo();
+        
         const roomFromUrl = this.ui.getInitialRoomFromURL();
         if (roomFromUrl) {
             this.ui.elements.roomInput.value = roomFromUrl;
@@ -149,14 +167,35 @@ class VideoCallApp {
     leaveRoom() {
         this.webrtc.cleanup();
         this.socket.disconnect();
-        location.reload();
+        this.ui.showError('Call ended. Returning to home...');
+        setTimeout(() => this.returnToHome(), 2000);
     }
 
     handleDisconnect() {
-        this.ui.showError('Call ended - Connection lost');
+        this.ui.showError('Call ended - Connection lost. Returning to home...');
+        setTimeout(() => this.returnToHome(), 3000);
+    }
+    
+    returnToHome() {
+        // Clean up everything
+        this.webrtc.cleanup();
+        if (this.socket.connected) {
+            this.socket.disconnect();
+        }
+        
+        // Reset state
+        this.currentRoom = null;
+        this.currentUsername = null;
+        this.participants = [];
+        
+        // Navigate to home
+        this.ui.showJoinScreen();
+        
+        // Reconnect socket for next session
         setTimeout(() => {
-            location.reload();
-        }, 3000);
+            this.socket = io();
+            this.setupSocketListeners();
+        }, 1000);
     }
 
     async handleUserJoined({ id, username }) {
@@ -177,14 +216,22 @@ class VideoCallApp {
         }
     }
 
-    handleUserLeft(userId) {
+    handleUserLeft(data) {
+        const userId = data.userId || data;
+        const username = data.username || 'Unknown user';
+        
         this.webrtc.closePeerConnection(userId);
         this.ui.removeRemoteVideo(userId);
         
-        const participant = this.participants.find(p => p.id === userId);
-        if (participant) {
-            this.ui.showError(`Call ended - ${participant.username} disconnected`);
-            this.chat.addMessage('System', `${participant.username} left the room`, MESSAGE_TYPES.SYSTEM);
+        this.ui.showError(`${username} left the call`);
+        this.chat.addMessage('System', `${username} left the room`, MESSAGE_TYPES.SYSTEM);
+        
+        // If only one person left, end the call
+        if (this.participants.length <= 2) {
+            setTimeout(() => {
+                this.ui.showError('Call ended. Returning to home...');
+                setTimeout(() => this.returnToHome(), 2000);
+            }, 1000);
         }
     }
 

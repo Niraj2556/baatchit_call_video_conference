@@ -10,6 +10,25 @@
 <body>
     <!-- Join Screen -->
     <div id="joinScreen" class="join-screen">
+        <div class="join-header">
+            <div class="join-profile-section">
+                <button id="joinProfileBtn" class="join-profile-btn">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="joinProfileUsername">User</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div id="joinProfileDropdown" class="join-profile-dropdown hidden">
+                    <button id="joinHistoryBtn" class="join-profile-menu-item">
+                        <i class="fas fa-history"></i>
+                        <span>Call History</span>
+                    </button>
+                    <button id="joinLogoutBtn" class="join-profile-menu-item logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="join-container">
             <div class="logo">
                 <i class="fas fa-video"></i>
@@ -62,6 +81,31 @@
                 </div>
             </div>
             <div class="header-right">
+                <div class="profile-section">
+                    <button id="profileBtn" class="btn-profile">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="profileUsername">User</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div id="profileDropdown" class="profile-dropdown hidden">
+                        <div class="profile-info">
+                            <i class="fas fa-user-circle profile-avatar"></i>
+                            <div class="profile-details">
+                                <div class="profile-name" id="profileName">User Name</div>
+                                <div class="profile-email" id="profileEmail">user@email.com</div>
+                            </div>
+                        </div>
+                        <div class="profile-divider"></div>
+                        <button id="historyBtn" class="profile-menu-item">
+                            <i class="fas fa-history"></i>
+                            <span>Call History</span>
+                        </button>
+                        <button id="logoutBtn" class="profile-menu-item logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                </div>
                 <button id="toggleChat" class="btn-icon">
                     <i class="fas fa-comments"></i>
                     <span id="chatBadge" class="chat-badge hidden">0</span>

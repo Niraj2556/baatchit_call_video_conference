@@ -21,6 +21,19 @@ class UIManager extends EventEmitter {
             createBtn: DOMUtils.getElementById('createBtn'),
             joinBtn: DOMUtils.getElementById('joinBtn'),
             leaveRoomBtn: DOMUtils.getElementById('leaveRoom'),
+            profileBtn: DOMUtils.getElementById('profileBtn'),
+            profileDropdown: DOMUtils.getElementById('profileDropdown'),
+            profileUsername: DOMUtils.getElementById('profileUsername'),
+            profileName: DOMUtils.getElementById('profileName'),
+            profileEmail: DOMUtils.getElementById('profileEmail'),
+            joinProfileBtn: DOMUtils.getElementById('joinProfileBtn'),
+            joinProfileDropdown: DOMUtils.getElementById('joinProfileDropdown'),
+            joinProfileUsername: DOMUtils.getElementById('joinProfileUsername'),
+            joinHistoryBtn: DOMUtils.getElementById('joinHistoryBtn'),
+            joinLogoutBtn: DOMUtils.getElementById('joinLogoutBtn'),
+            historyBtn: DOMUtils.getElementById('historyBtn'),
+            viewHistoryBtn: DOMUtils.getElementById('viewHistoryBtn'),
+            logoutBtn: DOMUtils.getElementById('logoutBtn'),
             currentRoom: DOMUtils.getElementById('currentRoom'),
             participantCount: DOMUtils.getElementById('participantCount'),
             localVideo: DOMUtils.getElementById('localVideo'),
@@ -48,6 +61,23 @@ class UIManager extends EventEmitter {
             this.handleJoinRoom();
         });
         this.elements.leaveRoomBtn.addEventListener('click', () => this.emit('leaveRoom'));
+        this.elements.profileBtn?.addEventListener('click', () => this.toggleProfileDropdown());
+        this.elements.joinProfileBtn?.addEventListener('click', () => this.toggleJoinProfileDropdown());
+        this.elements.historyBtn?.addEventListener('click', () => this.goToHistory());
+        this.elements.joinHistoryBtn?.addEventListener('click', () => this.goToHistory());
+        this.elements.viewHistoryBtn?.addEventListener('click', () => this.goToHistory());
+        this.elements.logoutBtn?.addEventListener('click', () => this.logout());
+        this.elements.joinLogoutBtn?.addEventListener('click', () => this.logout());
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!this.elements.profileBtn?.contains(e.target) && !this.elements.profileDropdown?.contains(e.target)) {
+                this.closeProfileDropdown();
+            }
+            if (!this.elements.joinProfileBtn?.contains(e.target) && !this.elements.joinProfileDropdown?.contains(e.target)) {
+                this.closeJoinProfileDropdown();
+            }
+        });
         this.elements.toggleChatBtn.addEventListener('click', () => this.toggleChat());
         this.elements.toggleMicBtn.addEventListener('click', () => this.emit('toggleMic'));
         this.elements.toggleCameraBtn.addEventListener('click', () => this.emit('toggleCamera'));
@@ -104,6 +134,7 @@ class UIManager extends EventEmitter {
         this.elements.joinScreen.classList.add('hidden');
         this.elements.mainApp.classList.remove('hidden');
         this.elements.currentRoom.textContent = roomId;
+        this.updateProfileInfo();
         this.updateURL(roomId);
     }
 
@@ -258,6 +289,46 @@ class UIManager extends EventEmitter {
         setTimeout(() => {
             button.style.transform = '';
         }, 150);
+    }
+    
+    goToHistory() {
+        window.location.href = '/history.html';
+    }
+    
+    toggleProfileDropdown() {
+        this.elements.profileDropdown?.classList.toggle('hidden');
+        this.elements.profileBtn?.classList.toggle('active');
+    }
+    
+    closeProfileDropdown() {
+        this.elements.profileDropdown?.classList.add('hidden');
+        this.elements.profileBtn?.classList.remove('active');
+    }
+    
+    toggleJoinProfileDropdown() {
+        this.elements.joinProfileDropdown?.classList.toggle('hidden');
+        this.elements.joinProfileBtn?.classList.toggle('active');
+    }
+    
+    closeJoinProfileDropdown() {
+        this.elements.joinProfileDropdown?.classList.add('hidden');
+        this.elements.joinProfileBtn?.classList.remove('active');
+    }
+    
+    updateProfileInfo() {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (user.username) {
+            this.elements.profileUsername.textContent = user.username;
+            this.elements.profileName.textContent = user.username;
+            this.elements.profileEmail.textContent = user.email || 'No email';
+            this.elements.joinProfileUsername.textContent = user.username;
+        }
+    }
+    
+    logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
     }
 }
 
