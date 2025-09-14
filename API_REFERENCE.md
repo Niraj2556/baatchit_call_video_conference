@@ -1,4 +1,4 @@
-# VideoChat Pro - API Reference
+# Baat Chit - API Reference
 
 ## Socket.io Events
 

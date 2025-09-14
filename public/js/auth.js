@@ -91,6 +91,9 @@ class AuthManager {
             if (e.key === 'Enter') this.handleRegister();
         });
         
+        // Password toggle handlers
+        this.setupPasswordToggles();
+        
         // Setup username checking after DOM is ready
         // setTimeout(() => this.setupUsernameCheck(), 100);
     }
@@ -203,6 +206,28 @@ class AuthManager {
         }
     }
     
+    setupPasswordToggles() {
+        const toggleButtons = document.querySelectorAll('.password-toggle');
+        
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                const icon = button.querySelector('i');
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+    }
+
     setupUsernameCheck() {
         const usernameInput = document.getElementById('registerUsername');
         if (!usernameInput) return;

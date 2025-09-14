@@ -59,7 +59,7 @@ class VideoCallApp {
             console.log('Connected to MongoDB');
             
             this.server.listen(port, () => {
-                console.log(`VideoChat Pro server running on port ${port}`);
+                console.log(`Baat Chit server running on port ${port}`);
             });
         } catch (error) {
             console.error('Database connection failed:', error);

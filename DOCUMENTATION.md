@@ -1,4 +1,4 @@
-# VideoChat Pro - Complete Documentation
+# Baat Chit - Complete Documentation
 
 ## Table of Contents
 1. [Project Overview](#project-overview)
@@ -18,7 +18,7 @@
 
 ## Project Overview
 
-VideoChat Pro is a modern WebRTC-based video calling application with real-time chat functionality. It supports multi-user conference calls similar to Google Meet or Zoom.
+Baat Chit is a modern WebRTC-based video calling application with real-time chat functionality. It supports multi-user conference calls similar to Google Meet or Zoom.
 
 ### Key Features
 - ✅ **Modern Glassmorphism UI** - Beautiful transparent design with blur effects
@@ -701,4 +701,4 @@ Context-aware chat notifications:
 
 ---
 
-This documentation provides everything needed to understand, modify, and deploy the VideoChat Pro application. Each section builds upon the previous ones, creating a complete picture of how the application works from the ground up.
+This documentation provides everything needed to understand, modify, and deploy the Baat Chit application. Each section builds upon the previous ones, creating a complete picture of how the application works from the ground up.

@@ -49,6 +49,8 @@ class VideoCallApp {
             this.socket.emit(EVENTS.ICE_CANDIDATE, { target: userId, candidate });
         });
         this.webrtc.on('error', (error) => console.error('WebRTC Error:', error));
+        this.webrtc.on('connectionLost', ({ userId, state }) => this.handleConnectionLost(userId, state));
+        this.webrtc.on('streamEnded', ({ trackKind }) => this.handleStreamEnded(trackKind));
 
         // Chat Events
         this.chat.on('messageAdded', (message) => {
@@ -293,6 +295,38 @@ class VideoCallApp {
     toggleCamera() {
         const isOff = this.webrtc.toggleCamera();
         this.ui.updateCameraButton(isOff);
+    }
+
+    handleConnectionLost(userId, state) {
+        console.log(`Connection lost with user ${userId}: ${state}`);
+        
+        // If connection is completely failed, end the call
+        if (state === 'failed') {
+            this.ui.showError('Connection lost. Returning to home...');
+            setTimeout(() => this.returnToHome(), 2000);
+        }
+    }
+
+    handleStreamEnded(trackKind) {
+        console.log(`${trackKind} track ended`);
+        this.ui.showError('Video call ended. Returning to home...');
+        setTimeout(() => this.returnToHome(), 2000);
+    }
+
+    returnToHome() {
+        // Clean up everything
+        this.webrtc.cleanup();
+        if (this.socket.connected) {
+            this.socket.disconnect();
+        }
+        
+        // Reset state
+        this.currentRoom = null;
+        this.currentUsername = null;
+        this.participants = [];
+        
+        // Navigate to home
+        window.location.href = '/';
     }
 }
 

@@ -1,4 +1,4 @@
-# VideoChat Pro - Architecture Documentation
+# Baat Chit - Architecture Documentation
 
 ## Project Structure
 

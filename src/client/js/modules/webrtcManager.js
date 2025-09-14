@@ -15,6 +15,14 @@ class WebRTCManager extends EventEmitter {
                 video: true,
                 audio: true
             });
+            
+            // Monitor track endings
+            this.localStream.getTracks().forEach(track => {
+                track.onended = () => {
+                    this.emit('streamEnded', { trackKind: track.kind });
+                };
+            });
+            
             this.emit('localStreamReady', this.localStream);
             return this.localStream;
         } catch (error) {
@@ -41,10 +49,12 @@ class WebRTCManager extends EventEmitter {
         };
 
         peerConnection.onconnectionstatechange = () => {
-            this.emit('connectionStateChange', { 
-                userId, 
-                state: peerConnection.connectionState 
-            });
+            const state = peerConnection.connectionState;
+            this.emit('connectionStateChange', { userId, state });
+            
+            if (state === 'failed' || state === 'disconnected') {
+                this.emit('connectionLost', { userId, state });
+            }
         };
 
         this.peerConnections[userId] = peerConnection;

@@ -1,4 +1,4 @@
-# VideoChat Pro - Quick Start Guide
+# Baat Chit - Quick Start Guide
 
 ## 🚀 Get Started in 5 Minutes
 

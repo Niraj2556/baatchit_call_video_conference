@@ -1,4 +1,4 @@
-# VideoChat Pro
+# Baat Chit
 
 A modern WebRTC-based video calling application with real-time chat and multi-user conference support.
 

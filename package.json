@@ -23,6 +23,6 @@
     "eslint": "^8.0.0"
   },
   "keywords": ["webrtc", "video-call", "chat", "real-time"],
-  "author": "VideoChat Pro Team",
+  "author": "Baat Chit Team",
   "license": "MIT"
 }
