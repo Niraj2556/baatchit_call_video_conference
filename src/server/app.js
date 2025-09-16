@@ -23,11 +23,6 @@ class VideoCallApp {
         this.setupMiddleware();
         this.setupRoutes();
         this.setupSocketHandlers();
-        
-        // Initialize database for Vercel
-        if (process.env.VERCEL) {
-            this.initializeForVercel();
-        }
     }
 
     setupMiddleware() {
@@ -60,23 +55,14 @@ class VideoCallApp {
 
     async start(port = process.env.PORT || 3000) {
         try {
-            await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://nirajgupta54180_db_user:idxfjMZxQTJmhdMc@cluster0.mfjynmk.mongodb.net/videochat?retryWrites=true&w=majority&appName=Cluster0');
+            await mongoose.connect('mongodb+srv://nirajgupta54180_db_user:idxfjMZxQTJmhdMc@cluster0.mfjynmk.mongodb.net/videochat?retryWrites=true&w=majority&appName=Cluster0');
             console.log('Connected to MongoDB');
             
-            if (!process.env.VERCEL) {
-                this.server.listen(port, () => {
-                    console.log(`Baat Chit server running on port ${port}`);
-                });
-            }
+            this.server.listen(port, () => {
+                console.log(`Baat Chit server running on port ${port}`);
+            });
         } catch (error) {
             console.error('Database connection failed:', error);
-        }
-    }
-
-    // Initialize database connection for Vercel
-    async initializeForVercel() {
-        if (!mongoose.connection.readyState) {
-            await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://nirajgupta54180_db_user:idxfjMZxQTJmhdMc@cluster0.mfjynmk.mongodb.net/videochat?retryWrites=true&w=majority&appName=Cluster0');
         }
     }
 }
