@@ -1,56 +1,80 @@
 # Baat Chit Frontend
 
-Frontend application for the Baat Chit video calling app.
+Frontend application for the Baat Chit video calling platform.
 
 ## Features
 
-- Modern glassmorphism UI design
-- WebRTC video calling interface
-- Real-time chat functionality
+- WebRTC video calling
+- Real-time chat messaging
+- User authentication
+- Call history
 - Responsive design
-- User authentication interface
-- Room creation and joining
-- Multi-user conference support
 
-## Setup
+## Configuration
+
+Before deployment, update the backend URL in `/public/js/config.js`:
+
+```javascript
+// Replace 'your-backend-domain.vercel.app' with your actual backend URL
+BACKEND_URL: 'https://your-backend-domain.vercel.app'
+```
+
+## Local Development
 
 1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Start the development server:
+2. Start development server:
 ```bash
-npm start
+npm run dev
 ```
 
-The frontend will be served on `http://localhost:8080`
+The application will be available at `http://localhost:8080`
 
-## Configuration
+## Deployment to Vercel
 
-The frontend connects to the backend server at `http://localhost:3000` by default. This can be changed in `public/js/utils/constants.js`:
+### Method 1: Vercel CLI
+1. Install Vercel CLI: `npm i -g vercel`
+2. Run `vercel` in the project directory
+3. Follow the prompts
 
-```javascript
-export const CONFIG = {
-    BACKEND_URL: 'http://localhost:3000',
-    // ... other config
-};
+### Method 2: GitHub Integration
+1. Push this repository to GitHub
+2. Connect your GitHub repository to Vercel
+3. Deploy automatically
+
+## Post-Deployment Setup
+
+1. After deploying both frontend and backend:
+   - Update the backend URL in `/public/js/config.js`
+   - Update the CORS_ORIGIN environment variable in your backend deployment
+   - Redeploy both applications
+
+## Project Structure
+
+```
+public/
+├── index.html          # Main video call interface
+├── auth.html          # Login/Register page
+├── history.html       # Call history page
+├── css/
+│   └── style.css      # Application styles
+└── js/
+    ├── config.js      # Environment configuration
+    ├── app.js         # Main application logic
+    ├── auth.js        # Authentication logic
+    ├── history.js     # Call history logic
+    ├── modules/       # Core modules
+    └── utils/         # Utility functions
 ```
 
-## File Structure
+## Browser Support
 
-- `public/` - Static files served by the web server
-  - `index.html` - Main application page
-  - `auth.html` - Authentication page
-  - `history.html` - Call history page
-  - `css/` - Stylesheets
-  - `js/` - JavaScript modules
-    - `modules/` - Core application modules
-    - `utils/` - Utility functions and constants
+- Chrome 60+
+- Firefox 60+
+- Safari 12+
+- Edge 79+
 
-## Usage
-
-1. Make sure the backend server is running on port 3000
-2. Start the frontend server
-3. Navigate to `http://localhost:8080`
-4. Register or login to access the video calling features
+WebRTC features require HTTPS in production.

@@ -5,7 +5,7 @@ import CallHistory from '../models/CallHistory.js';
 import CallRating from '../models/CallRating.js';
 
 const router = express.Router();
-const JWT_SECRET = 'videochat_secret_key';
+const JWT_SECRET = process.env.JWT_SECRET || 'videochat_secret_key';
 
 // Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
