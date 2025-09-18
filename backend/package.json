@@ -20,7 +20,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
-    "eslint": "^8.0.0"
+    "eslint": "^8.0.0",
+    "dotenv": "^16.3.1"
   },
   "keywords": ["webrtc", "video-call", "chat", "real-time", "backend"],
   "author": "Baat Chit Team",

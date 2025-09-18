@@ -8,6 +8,16 @@ import cors from 'cors';
 import SocketHandler from './handlers/socketHandler.js';
 import authRoutes from './routes/auth.js';
 
+// Load environment variables
+if (process.env.NODE_ENV !== 'production') {
+    try {
+        const dotenv = await import('dotenv');
+        dotenv.config();
+    } catch (err) {
+        console.log('dotenv not available, using environment variables');
+    }
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -17,9 +27,11 @@ class VideoCallApp {
         this.server = http.createServer(this.app);
         this.io = new Server(this.server, {
             cors: {
-                origin: "*",
+                origin: process.env.CORS_ORIGIN || "*",
                 methods: ["GET", "POST"]
-            }
+            },
+            transports: ['websocket', 'polling'],
+            allowEIO3: true
         });
         this.socketHandler = new SocketHandler(this.io);
         
@@ -61,7 +73,8 @@ class VideoCallApp {
 
     async start(port = process.env.PORT || 3000) {
         try {
-            await mongoose.connect('mongodb+srv://nirajgupta54180_db_user:idxfjMZxQTJmhdMc@cluster0.mfjynmk.mongodb.net/videochat?retryWrites=true&w=majority&appName=Cluster0');
+            const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://nirajgupta54180_db_user:idxfjMZxQTJmhdMc@cluster0.mfjynmk.mongodb.net/videochat?retryWrites=true&w=majority&appName=Cluster0';
+            await mongoose.connect(mongoUri);
             console.log('Connected to MongoDB');
             
             this.server.listen(port, () => {

@@ -1,5 +1,7 @@
+import { ENV_CONFIG } from '../config.js';
+
 export const CONFIG = {
-    BACKEND_URL: 'http://localhost:3000',
+    BACKEND_URL: ENV_CONFIG.BACKEND_URL,
     ICE_SERVERS: {
         iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
     },
