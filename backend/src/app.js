@@ -29,7 +29,9 @@ class VideoCallApp {
             cors: {
                 origin: process.env.CORS_ORIGIN || "*",
                 methods: ["GET", "POST"]
-            }
+            },
+            transports: ['websocket', 'polling'],
+            allowEIO3: true
         });
         this.socketHandler = new SocketHandler(this.io);
         
