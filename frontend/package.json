@@ -1,0 +1,16 @@
+{
+  "name": "baat-chit-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Baat Chit video calling app",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server public -p 8080 -c-1 -a localhost",
+    "dev": "npx http-server public -p 8080 -c-1 -o -a localhost"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "keywords": ["webrtc", "video-call", "chat", "real-time", "frontend"],
+  "author": "Baat Chit Team",
+  "license": "MIT"
+}
